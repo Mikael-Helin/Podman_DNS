@@ -1,0 +1,22 @@
+{
+    "name": "r53",
+    "version": "0.0.1",
+    "description": "r53 is a simple DNS manager for personal use",
+    "main": "app.js",
+    "scripts": {
+        "start": "node app.js",
+        "test": "jest /opt/app/testing/*.js"
+    },
+    "keywords": [],
+    "author": "Mikael Helin",
+    "license": "Copyright by Mikael Helin",
+    "dependencies": {
+        "sqlite3": "^5.1.16",
+        "axios": "^1.4.0",
+        "express": "^4.18.2",
+        "net": "^1.0.2"
+    },
+    "devDependencies": {
+        "jest": "^29.6.2"
+    }
+}
