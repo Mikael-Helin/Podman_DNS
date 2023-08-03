@@ -1,31 +1,34 @@
-# r53 personal DNS manager
+---
+title: r53 Personal DNS Manager
+date: August 30, 2023
+---
 
-The r53 personal DNS manager is a minimalistic manager to keep records of your DNS entires. Queries are done over HTTP(S) where strings are returned. Basically, r53 personal DNS manager is a key-value store for your AAAA records and A records, not a DNS server.
+# r53 Personal DNS Manager
+
+The r53 Personal DNS Manager is a minimalistic manager to keep records of your DNS entries. It is not a DNS server in itself but a key-value store for your AAAA and A records. Queries are performed over HTTP(S), returning string responses. r53 Personal DNS Manager can handle upto a few hundred requests per second.
 
 ## Instructions
 
-With r53 personal DNS manager, all your requests are done with the GET verb only. There is no support for other HTTP verbs.
+All your requests to the r53 Personal DNS Manager are performed using the GET HTTP method. Currently, no other HTTP methods are supported. If something goes wrong, an empty string ("") is returned. The r53 Personal DNS Manager does not currently support returning specific error codes.
 
-If something goes wrong, an empty string "" is returned, there are no error codes for r53 personal DNS manager at the moment.
-
-There exists four commands
+Four commands, as paths, are supported:
 
     get
     set
     unset
     reverse
 
-and all commands are used in the URL path.
+Each of these commands are used in the URL path, such as
 
-##
+    https://www.r53.be:1053/{path}/{url}/...
 
 ### GET
 
-To get the IP-address for example.com browse to
+To get the IP-address for example.com, navigate to
 
-    https://www.r53.be/get/example.com
+    https://www.r53.be:1053/get/example.com
 
-which then returns the IP-address according to following pseudo code
+This will return the IP-address according to the following pseudo code:
 
     if (IPv6 for example.com exists):
         return (IPv6 for example.com)
@@ -34,52 +37,46 @@ which then returns the IP-address according to following pseudo code
     else:
         return ""
 
-i.e. if there exists no record of example.com then an empty string "" is returned.
+If there is no record for example.com, an empty string ("") is returned.
 
-You may prefer to specify IPv6-address or IPv4-address for your retrieval, then you just query with v=ipv6 or v=ipv6
+If you prefer to specify the IP version for your query, use the `v` parameter with values `ipv6` or `ipv4`:
 
-    https://www.r53.be/get/example.com?v=ipv6   # returns IPv6-address
-    https://www.r53.be/get/example.com?v=ipv4   # returns IPv4-address
+    https://www.r53.be:1053/get/example.com?v=ipv6   # returns IPv6-address
+    https://www.r53.be:1053/get/example.com?v=ipv4   # returns IPv4-address
 
-When retireval of an IP-address fails, for example your entry is malformatted or does not exists, an empty string is returned.
-
-##
+In case of a failed retrieval (e.g., the entry is malformed or does not exist), an empty string is returned.
 
 ### SET
 
-When setting an IP-address to an URL. r53 DNS manager automatically detects if your input is an IPv6-address or an IPv4-address.
+To set an IP address for an URL, r53 Personal DNS Manager automatically detects whether your input is an IPv6 or IPv4 address.
 
-To set the IPv6-address fd00::1 for example.com just browse to
+Set the IPv6-address fd00::1 for example.com:
 
-    https://www.r53.be/set/example.com/fd00::1
+    https://www.r53.be:1053/set/example.com/fd00::1
 
-And to set the IPv4-address 192.168.0.1 for example.com just browse to
+Set the IPv4-address 192.168.0.1 for example.com:
 
-    https://www.r53.be/set/example.com/192.168.0.1
+    https://www.r53.be:1053/set/example.com/192.168.0.1
 
-You can also set the IP-address without providing any IP-address, in that case the IP-address visiting the site www.r53.be is assigned to the url
+You can also assign the IP address of the visitor to an URL by not providing any IP address:
 
-    https://www.r53.be/set/example.com
+    https://www.r53.be:1053/set/example.com
 
-If some IP-address is already assigned for an URL, then another assignation will overwrite the old value.
+Existing entries for an URL will be:1053 overwritten with new assignments.
 
-If set was successfull, then the string "OK" is returned else the empty string "" is returned.
-
-##
+If the set operation was successful, the string "OK" is returned. Otherwise, the empty string ("") is returned.
 
 ### UNSET
 
-To unset IP-addresses for an URL we use the unset path.
+To unset IP addresses for an URL, use the `unset` path.
 
-    https://www.r53.be/unset/example.com
+    https://www.r53.be:1053/unset/example.com
 
-If unset was successfull, then the string "OK" is returned else the empty string "" is returned.
+If the unset operation was successful, "OK" is returned. Otherwise, the empty string "" is returned. Unset removes both IPv6- and IPV4-addresses. If you need to keep one of the addresses, then insert it again.
 
-##
+### GET Revisited
 
-### GET revisited
-
-If no URL id prvoded with the get, then all domains and their IP-addresses are retunred.
+If no URL is provided with the get command, all domains and their associated IP addresses are returned:
 
     example1.com fd00::1 192.168.0.1
     example2.com fd00::2 192.168.0.2
@@ -87,25 +84,31 @@ If no URL id prvoded with the get, then all domains and their IP-addresses are r
     example4.com 192.168.0.1
     ...
 
-##
-
 ### REVERSE
 
-You can do reverse lookups, that is you provide an IP-address and all DNS names matching the IP-address are retuned
+Reverse lookups are supported. Provide an IP address and all DNS names associated with that IP address are returned.
 
-    https://www.r53.be/reverse/fd00::2
+For example,
 
-returns for example
+    https://www.r53.be:1053/reverse/fd00::2
+
+This could return:
 
     example2.com
     example3.com
 
-and
+For example, 
 
-    https://www.r53.be/reverse/192.168.0.1
+    https://www.r53.be:1053/reverse/192.168.0.1
 
-returns for example
+Could return:
 
     example1.com
     example4.com
 
+### UNSET Revisited
+
+If you provide an IP address instead of an URL for the unset command, all DNS names pointing to that IP address will be:1053 removed:
+
+    https://www.r53.be:1053/unset/fd00::1
+    https://www.r53.be:1053/unset/192.168.0.1

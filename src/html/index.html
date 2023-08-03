@@ -1,23 +1,252 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2023-08-30" />
+  <title>r53 Personal DNS Manager</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
 </head>
 <body>
-    <h1><b>INSTRUCTIONS</b></h1>
-    <h2>GET</h2>
-    Get the IP-address for example.com<br>
-    https://www.r53.be/get/example.com<br>
-    <br>
-    You may specify IP version with the v query<br>
-    https://www.r53.be/get/example.com?v=ipv4<br>
-    https://www.r53.be/get/example.com?v=ipv6<br>
-    If v is omitted or unknown then IPv6 is returned if it exists, else if IPv4 is returned if it exists.<br>
-    <br>
-    If you query for something that does not exists in the database, then an empty string is returned.<br>
-    <br>
-
+<header id="title-block-header">
+<h1 class="title">r53 Personal DNS Manager</h1>
+<p class="date">August 30, 2023</p>
+</header>
+<h1 id="r53-personal-dns-manager">r53 Personal DNS Manager</h1>
+<p>The r53 Personal DNS Manager is a minimalistic manager to keep
+records of your DNS entries. It is not a DNS server in itself but a
+key-value store for your AAAA and A records. Queries are performed over
+HTTP(S), returning string responses. r53 Personal DNS Manager can handle
+upto a few hundred requests per second.</p>
+<h2 id="instructions">Instructions</h2>
+<p>All your requests to the r53 Personal DNS Manager are performed using
+the GET HTTP method. Currently, no other HTTP methods are supported. If
+something goes wrong, an empty string (““) is returned. The r53 Personal
+DNS Manager does not currently support returning specific error
+codes.</p>
+<p>Four commands, as paths, are supported:</p>
+<pre><code>get
+set
+unset
+reverse</code></pre>
+<p>Each of these commands are used in the URL path, such as</p>
+<pre><code>https://www.r53.be:1053/{path}/{url}/...</code></pre>
+<h3 id="get">GET</h3>
+<p>To get the IP-address for example.com, navigate to</p>
+<pre><code>https://www.r53.be:1053/get/example.com</code></pre>
+<p>This will return the IP-address according to the following pseudo
+code:</p>
+<pre><code>if (IPv6 for example.com exists):
+    return (IPv6 for example.com)
+else if (IPv4 for example.com exists):
+    return (IPv4 for example.com)
+else:
+    return &quot;&quot;</code></pre>
+<p>If there is no record for example.com, an empty string (““) is
+returned.</p>
+<p>If you prefer to specify the IP version for your query, use the
+<code>v</code> parameter with values <code>ipv6</code> or
+<code>ipv4</code>:</p>
+<pre><code>https://www.r53.be:1053/get/example.com?v=ipv6   # returns IPv6-address
+https://www.r53.be:1053/get/example.com?v=ipv4   # returns IPv4-address</code></pre>
+<p>In case of a failed retrieval (e.g., the entry is malformed or does
+not exist), an empty string is returned.</p>
+<h3 id="set">SET</h3>
+<p>To set an IP address for an URL, r53 Personal DNS Manager
+automatically detects whether your input is an IPv6 or IPv4 address.</p>
+<p>Set the IPv6-address fd00::1 for example.com:</p>
+<pre><code>https://www.r53.be:1053/set/example.com/fd00::1</code></pre>
+<p>Set the IPv4-address 192.168.0.1 for example.com:</p>
+<pre><code>https://www.r53.be:1053/set/example.com/192.168.0.1</code></pre>
+<p>You can also assign the IP address of the visitor to an URL by not
+providing any IP address:</p>
+<pre><code>https://www.r53.be:1053/set/example.com</code></pre>
+<p>Existing entries for an URL will be overwritten with new
+assignments.</p>
+<p>If the set operation was successful, the string “OK” is returned.
+Otherwise, the empty string (““) is returned.</p>
+<h3 id="unset">UNSET</h3>
+<p>To unset IP addresses for an URL, use the <code>unset</code>
+path.</p>
+<pre><code>https://www.r53.be:1053/unset/example.com</code></pre>
+<p>If the unset operation was successful, “OK” is returned. Otherwise,
+the empty string “” is returned. Unset removes both IPv6- and
+IPV4-addresses. If you need to keep one of the addresses, then insert it
+again.</p>
+<h3 id="get-revisited">GET Revisited</h3>
+<p>If no URL is provided with the get command, all domains and their
+associated IP addresses are returned:</p>
+<pre><code>example1.com fd00::1 192.168.0.1
+example2.com fd00::2 192.168.0.2
+example3.com fd00::2
+example4.com 192.168.0.1
+...</code></pre>
+<h3 id="reverse">REVERSE</h3>
+<p>Reverse lookups are supported. Provide an IP address and all DNS
+names associated with that IP address are returned.</p>
+<p>For example,</p>
+<pre><code>https://www.r53.be:1053/reverse/fd00::2</code></pre>
+<p>This could return:</p>
+<pre><code>example2.com
+example3.com</code></pre>
+<p>For example,</p>
+<pre><code>https://www.r53.be:1053/reverse/192.168.0.1</code></pre>
+<p>Could return:</p>
+<pre><code>example1.com
+example4.com</code></pre>
+<h3 id="unset-revisited">UNSET Revisited</h3>
+<p>If you provide an IP address instead of an URL for the unset command,
+all DNS names pointing to that IP address will be removed:</p>
+<pre><code>https://www.r53.be:1053/unset/fd00::1
+https://www.r53.be:1053/unset/192.168.0.1</code></pre>
 </body>
 </html>
