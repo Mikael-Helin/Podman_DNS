@@ -1,0 +1,12 @@
+$TTL 86400
+@       IN      SOA     ns.r53.be. admin.r53.be. (
+                        __timestamp__   ; serial number
+                        3600            ; refresh period
+                        900             ; retry interval
+                        604800          ; expire time
+                        86400 )         ; minimum TTL
+
+        IN      NS      ns.r53.be.
+        IN      A       192.168.0.3
+        IN      AAAA    fc00::3
+

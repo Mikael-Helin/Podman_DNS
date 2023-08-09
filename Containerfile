@@ -1,11 +1,12 @@
 FROM node:bullseye as production
 
+RUN mkdir -p /etc/bind/zones
 RUN mkdir -p /opt/app/dist/html
 RUN mkdir -p /opt/app/data
 WORKDIR /opt/app
 
 RUN apt-get update
-#RUN apt-get install -y sqlite3
+RUN apt-get install -y bind9
 
 RUN node --version
 RUN npm --version
