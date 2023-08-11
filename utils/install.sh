@@ -10,4 +10,4 @@ chmod +x update.sh
 chmod +x run.sh
 chmod +x install_tests.sh
 chmod +x update_tests.sh
-chmod +x run_test.sh
+chmod +x run_tests.sh

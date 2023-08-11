@@ -266,6 +266,8 @@ const updateIPInHost = (host, domain, ip) => {
   domain_names[domain][host][ipVersion] = domain_names[domain][host][ipVersion] || [];
   if (!ipExists(host, domain, ip)) domain_names[domain][host][ipVersion].push(ip);
   overwriteIP2File(host, domain, ipVersion);
+  appendDomain2NamedConfLocal(domain);
+  updateZone(domain);
   return true;
 };
 
@@ -273,13 +275,18 @@ const removeIPFromHost = (host, domain, ip) => {
   const ipVersion = getIPVersion(ip);
   if (domain_names[domain]?.[host]?.[ipVersion]?.includes(ip)) {
     domain_names[domain][host][ipVersion] = domain_names[domain][host][ipVersion].filter(ip2 => ip2 !== ip);
-    if (domain_names[domain][host][ipVersion].length>0 ) overwriteIP2File(host, domain, ipVersion)
+    if (domain_names[domain][host][ipVersion].length>0 ) {
+      overwriteIP2File(host, domain, ipVersion);
+      updateZone(domain); }
     else {
       deleteIPFile(host, domain, ipVersion);
       delete domain_names[domain][host][ipVersion];
       if (Object.keys(domain_names[domain][host]).length === 0) {
         delete domain_names[domain][host];
-        if (Object.keys(domain_names[domain]).length === 0) delete domain_names[domain]; };};};
+        if (Object.keys(domain_names[domain]).length === 0) { 
+          delete domain_names[domain];
+          deleteDomainZone(domain);
+          removeDomainFromNamedConfLocal(domain); };};};};
 };
 
 const removeIPFromDomain = (domain, ip) => { if (domain_names.hasOwnProperty(domain)) for (const host in domain_names[domain]) removeIPFromHost(host, domain, ip); };
@@ -327,29 +334,29 @@ const removeAll = () => { if (Object.keys(domain_names).length>0) for (const dom
 
 // Writes named.conf.local
 
-const addDomain2NamedConfLocal = domain => {
+const appendDomain2NamedConfLocal = domain => {
   if (!(domain in domain_names)) {
-    let conflocal = `zone "${domain}" {
+    let confLocalString = `zone "${domain}" {
   type master;
   file "/etc/bind/zones/${domain}.db";
 };
 
 `;
 
-  fs.appendFile("/etc/bind/named.conf.local", conflocal, function (err) {
-    if (err) throw err;
-    console.log('Saved!');});};
+  fsp.appendFile("/etc/bind/named.conf.local", confLocalString, function (err) {
+    if (err) throw err
+    else console.log(`Saved ${domain}!`);});};
 };
 
 const overWriteNamedConfLocal = async () => {
-  const filename = "/etc/bind/named.conf.local";
-  if (fs.existsSync(filename)) fs.unlinkSync(filename);
-  for (const domain in domain_names) addDomain2NamedConfLocal(domain);
+  fs.writeFileSync("/etc/bind/named.conf.local", "", "utf8");
+  for (const domain in domain_names) if (domain_names,hasOwnProperty(domain)) appendDomain2NamedConfLocal(domain);
 };
 
 const removeDomainFromNamedConfLocal = domain => {
-  if (domain in domain_names) delete domain_names[domain];
-  writeDomainsBind();
+  if (domain_names.hasOwnProperty(domain)) {
+    delete domain_names[domain];
+    overWriteNamedConfLocal(); };
 };
 
 // Bind zones -  writes /etc/bind/zones/${domain}.db` from domain_names[domain] or delete zones
@@ -380,7 +387,7 @@ const updateZone = domain => {
     fsp.writeFile(`/etc/bind/zones/${domain}.db`, db, err => { if(err) { console.error(err); };});};
 };
 
-const updateAllZones = () => { if (Object.keys(domain_names).length>0) for (domain in domain_names) updateZone(domain); };
+const updateAllZones = () => { if (Object.keys(domain_names).length>0) for (const domain in domain_names) updateZone(domain); };
 
 const deleteDomainZone = domain => {
   const filename = `/etc/bind/zones/${domain}.db`;
@@ -392,7 +399,7 @@ const deleteDanglingZones = () => {
   for (const domain in all_domain_file_names) { 
     if(!(domain in domain_names)) { 
       removeDomainFromNamedConfLocal(domain);
-      deleteDomainZone(domain) };};
+      deleteDomainZone(domain); };};
 };
 
 // Main
@@ -402,8 +409,8 @@ let domain_names = {};
 const main = async () => {
   domain_names = await populateDictionary();
   await overWriteNamedConfLocal();
-  await updateAllZones();
-  await deleteDanglingZones();
+  updateAllZones();
+  deleteDanglingZones();
   app.listen(port, () => { console.log(`r53 Personal DNS Manager listening at http://localhost:${port}`); });
 };
 
